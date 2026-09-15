@@ -1,5 +1,5 @@
 # 🤖 Spareinator
-https://gumberss.github.io/Spareinator/
+https://gumberss.github.io/spareinator/
 <img width="1349" height="912" alt="image" src="https://github.com/user-attachments/assets/0a879fa3-8463-49b0-b144-5b19b7525917" />
 
 
