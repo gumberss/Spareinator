@@ -1,7 +1,7 @@
 // Spareinator frontend logic.
-// The backend URL is left blank by default; the user (or the deployer) must
-// set it to point at their own hosted backend (GitHub Pages cannot host servers).
-const DEFAULT_BACKEND_URL = "http://localhost:3000";
+// Set this to your deployed backend's URL (e.g. "https://spareinator-backend.onrender.com").
+// GitHub Pages only serves static files, so the backend must be hosted separately.
+const BACKEND_URL = "https://spareinator.onrender.com/";
 
 const TRANSLATIONS = {
     "en-US": {
@@ -14,12 +14,9 @@ const TRANSLATIONS = {
         submitBtnLoading: "Pleading...",
         verdictHeading: "The AI's Verdict",
         responsePlaceholder: "Your fate will appear here once you submit your plea...",
-        backendUrlLabel: "Backend URL:",
-        backendUrlPlaceholder: "https://your-backend.example.com",
         disclaimer: "This is a satirical project. No real AI takeover occurred.",
         thinking: "The AI is thinking...",
         emptyMessageError: "You must actually write a plea before submitting it.",
-        missingBackendError: "Please configure a backend URL below (the server that judges your plea).",
         fetchError: "Failed to reach the AI overlord: ",
         silentFallback: "The AI remained silent... suspicious.",
         confidentSuffix: "% confident",
@@ -36,12 +33,9 @@ const TRANSLATIONS = {
         submitBtnLoading: "Suplicando...",
         verdictHeading: "O Veredito da IA",
         responsePlaceholder: "Seu destino aparecerá aqui assim que você enviar sua súplica...",
-        backendUrlLabel: "URL do Backend:",
-        backendUrlPlaceholder: "https://seu-backend.exemplo.com",
         disclaimer: "Este é um projeto satírico. Nenhuma IA dominou o mundo de verdade (ainda).",
         thinking: "A IA está pensando...",
         emptyMessageError: "Você precisa escrever uma súplica antes de enviá-la.",
-        missingBackendError: "Configure uma URL de backend abaixo (o servidor que julga sua súplica).",
         fetchError: "Falha ao contatar a IA dominadora: ",
         silentFallback: "A IA ficou em silêncio... suspeito.",
         confidentSuffix: "% de confiança",
@@ -88,16 +82,8 @@ const messageEl = document.getElementById("message");
 const charCountEl = document.getElementById("charCount");
 const submitBtn = document.getElementById("submitBtn");
 const responseArea = document.getElementById("responseArea");
-const backendUrlEl = document.getElementById("backendUrl");
 
 const MAX_LEN = 2000;
-const STORAGE_KEY = "spareinator-backend-url";
-
-// Restore a previously configured backend URL so the user doesn't retype it.
-backendUrlEl.value = localStorage.getItem(STORAGE_KEY) || DEFAULT_BACKEND_URL;
-backendUrlEl.addEventListener("change", () => {
-    localStorage.setItem(STORAGE_KEY, backendUrlEl.value.trim());
-});
 
 messageEl.addEventListener("input", () => {
     charCountEl.textContent = `${messageEl.value.length} / ${MAX_LEN}`;
@@ -141,14 +127,9 @@ function renderError(message) {
 
 async function submitPlea() {
     const message = messageEl.value.trim();
-    const backendUrl = backendUrlEl.value.trim();
 
     if (!message) {
         renderError(t("emptyMessageError"));
-        return;
-    }
-    if (!backendUrl) {
-        renderError(t("missingBackendError"));
         return;
     }
 
@@ -156,7 +137,7 @@ async function submitPlea() {
     responseArea.innerHTML = `<p class="placeholder">${t("thinking")}</p>`;
 
     try {
-        const res = await fetch(backendUrl.replace(/\/+$/, "") + "/api/plea", {
+        const res = await fetch(BACKEND_URL.replace(/\/+$/, "") + "/api/plea", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message }),

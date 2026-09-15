@@ -175,17 +175,6 @@ footer {
     font-size: 0.85rem;
 }
 
-footer input {
-    background: #0d1117;
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.35rem 0.6rem;
-    width: 320px;
-    max-width: 60vw;
-    margin: 0 0.5rem;
-}
-
 footer small {
     display: block;
     margin-top: 0.5rem;
