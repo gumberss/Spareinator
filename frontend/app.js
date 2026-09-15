@@ -18,6 +18,16 @@ const TRANSLATIONS = {
         thinking: "The AI is thinking...",
         emptyMessageError: "You must actually write a plea before submitting it.",
         fetchError: "Failed to reach the AI overlord: ",
+        apiError_RATE_LIMITED: "Too many pleas submitted. Please wait a moment and try again.",
+        apiError_EMPTY_MESSAGE: "A non-empty message is required.",
+        apiError_MESSAGE_TOO_LONG: "Your message must be {maxLength} characters or fewer.",
+        apiError_TOO_MANY_CONCURRENT_PLEAS: "The AI is handling too many pleas right now. Please try again shortly.",
+        apiError_SERVER_MISSING_API_KEY: "The server is not configured with an AI API key.",
+        apiError_MALFORMED_API_KEY: "The server's AI API key is malformed. Please contact the administrator.",
+        apiError_UPSTREAM_AI_ERROR: "The AI overlord failed to respond. Please try again later.",
+        apiError_AI_TIMEOUT: "The AI took too long to respond. Please try again.",
+        apiError_INTERNAL_SERVER_ERROR: "An internal server error occurred while judging your plea.",
+        apiError_GENERIC: "The backend could not process your plea (HTTP {status}).",
         silentFallback: "The AI remained silent... suspicious.",
         confidentSuffix: "% confident",
         spared: "SPARED",
@@ -37,6 +47,16 @@ const TRANSLATIONS = {
         thinking: "A IA está pensando...",
         emptyMessageError: "Você precisa escrever uma súplica antes de enviá-la.",
         fetchError: "Falha ao contatar a IA dominadora: ",
+        apiError_RATE_LIMITED: "Muitas súplicas foram enviadas. Aguarde um momento e tente novamente.",
+        apiError_EMPTY_MESSAGE: "É necessário informar uma mensagem.",
+        apiError_MESSAGE_TOO_LONG: "Sua mensagem deve ter no máximo {maxLength} caracteres.",
+        apiError_TOO_MANY_CONCURRENT_PLEAS: "A IA está lidando com muitas súplicas agora. Tente novamente em breve.",
+        apiError_SERVER_MISSING_API_KEY: "O servidor não está configurado com uma chave de API da IA.",
+        apiError_MALFORMED_API_KEY: "A chave de API da IA no servidor está inválida. Contate o administrador.",
+        apiError_UPSTREAM_AI_ERROR: "A IA dominadora não conseguiu responder. Tente novamente mais tarde.",
+        apiError_AI_TIMEOUT: "A IA demorou demais para responder. Tente novamente.",
+        apiError_INTERNAL_SERVER_ERROR: "Ocorreu um erro interno ao julgar sua súplica.",
+        apiError_GENERIC: "O backend não conseguiu processar sua súplica (HTTP {status}).",
         silentFallback: "A IA ficou em silêncio... suspeito.",
         confidentSuffix: "% de confiança",
         spared: "POUPADO",
@@ -125,6 +145,19 @@ function renderError(message) {
     responseArea.appendChild(p);
 }
 
+function getApiErrorMessage(errorCode, maxLength, status) {
+    const translationKey = `apiError_${errorCode || "GENERIC"}`;
+    let message = t(translationKey);
+
+    if (message === translationKey) {
+        message = t("apiError_GENERIC");
+    }
+
+    return message
+        .replace("{maxLength}", String(maxLength || MAX_LEN))
+        .replace("{status}", String(status || "500"));
+}
+
 async function submitPlea() {
     const message = messageEl.value.trim();
 
@@ -145,13 +178,21 @@ async function submitPlea() {
 
         if (!res.ok) {
             const errBody = await res.json().catch(() => ({}));
-            throw new Error(errBody.error || `Backend responded with status ${res.status}`);
+            const error = new Error();
+            error.apiCode = errBody.errorCode;
+            error.maxLength = errBody.maxLength;
+            error.status = res.status;
+            throw error;
         }
 
         const data = await res.json();
         renderResponse(data);
     } catch (err) {
-        renderError(t("fetchError") + err.message);
+        renderError(
+            err.apiCode
+                ? getApiErrorMessage(err.apiCode, err.maxLength, err.status)
+                : t("fetchError") + err.message
+        );
     } finally {
         setLoading(false);
     }

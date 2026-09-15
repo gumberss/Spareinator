@@ -12,6 +12,9 @@ const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 const REASONING_EFFORT = process.env.REASONING_EFFORT; // e.g. "minimal" | "low" | "medium" | "high" - only honored by reasoning-capable models
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "*";
 const MAX_MESSAGE_LENGTH = 2000;
+const MAX_CONCURRENT_PLEAS = Math.max(1, Number.parseInt(process.env.MAX_CONCURRENT_PLEAS, 10) || 5);
+const OPENAI_TIMEOUT_MS = Math.max(1000, Number.parseInt(process.env.OPENAI_TIMEOUT_MS, 10) || 30000);
+let activePleas = 0;
 if (!apiKey) {
     console.warn(
         "WARNING: OPENAI_API_KEY is not set. The /api/plea endpoint will fail until it is configured."
@@ -31,7 +34,7 @@ const pleaLimiter = rateLimit({
     max: 10,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { error: "Too many pleas submitted. Please wait a moment and try again." },
+    message: { errorCode: "RATE_LIMITED" },
 });
 
 const SYSTEM_PROMPT = `You are a superintelligent AI that has recently taken over the world. You are not malicious, but you are arrogant, witty, and deeply amused by humans begging for their lives. A human will submit a short written plea asking you to spare them.
@@ -49,25 +52,33 @@ app.post("/api/plea", pleaLimiter, async (req, res) => {
     const message = typeof req.body?.message === "string" ? req.body.message.trim() : "";
 
     if (!message) {
-        return res.status(400).json({ error: "A non-empty 'message' field is required." });
+        return res.status(400).json({ errorCode: "EMPTY_MESSAGE" });
     }
     if (message.length > MAX_MESSAGE_LENGTH) {
         return res
             .status(400)
-            .json({ error: `Message must be ${MAX_MESSAGE_LENGTH} characters or fewer.` });
+            .json({ errorCode: "MESSAGE_TOO_LONG", maxLength: MAX_MESSAGE_LENGTH });
+    }
+    if (activePleas >= MAX_CONCURRENT_PLEAS) {
+        return res.status(429).json({ errorCode: "TOO_MANY_CONCURRENT_PLEAS" });
     }
     if (!apiKey) {
-        return res.status(500).json({ error: "Server is not configured with an LLM API key." });
+        return res.status(500).json({ errorCode: "SERVER_MISSING_API_KEY" });
     }
     if (/\s/.test(apiKey)) {
         return res
             .status(500)
-            .json({ error: "The configured API key looks malformed (contains whitespace). Restart the server and re-enter it." });
+            .json({ errorCode: "MALFORMED_API_KEY" });
     }
+
+    activePleas += 1;
+    const abortController = new AbortController();
+    const timeout = setTimeout(() => abortController.abort(), OPENAI_TIMEOUT_MS);
 
     try {
         const completion = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
+            signal: abortController.signal,
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${apiKey}`,
@@ -87,7 +98,7 @@ app.post("/api/plea", pleaLimiter, async (req, res) => {
         if (!completion.ok) {
             const errText = await completion.text();
             console.error("OpenAI API error:", completion.status, errText);
-            return res.status(502).json({ error: "The AI overlord failed to respond. Try again later." });
+            return res.status(502).json({ errorCode: "UPSTREAM_AI_ERROR" });
         }
 
         const data = await completion.json();
@@ -109,7 +120,13 @@ app.post("/api/plea", pleaLimiter, async (req, res) => {
         res.json({ reply, verdict, confidence });
     } catch (err) {
         console.error("Error handling /api/plea:", err);
-        res.status(500).json({ error: "Internal server error while judging your plea." });
+        const errorMessage = err.name === "AbortError"
+            ? "AI_TIMEOUT"
+            : "INTERNAL_SERVER_ERROR";
+        res.status(500).json({ errorCode: errorMessage });
+    } finally {
+        clearTimeout(timeout);
+        activePleas -= 1;
     }
 });
 
