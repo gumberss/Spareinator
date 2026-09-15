@@ -1,5 +1,8 @@
 # 🤖 Spareinator
 
+<img width="1349" height="912" alt="image" src="https://github.com/user-attachments/assets/0a879fa3-8463-49b0-b144-5b19b7525917" />
+
+
 A tongue-in-cheek project where you write a plea to a fictional world-dominating AI,
 and a backend LLM judges your plea — in character, and funny — deciding whether
 you're `SPARED` or `DOOMED`.
