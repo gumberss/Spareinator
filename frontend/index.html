@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Saveinator — Plead Your Case to the AI</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <header class="hero">
+        <div class="lang-switch">
+            <label for="langSelect" class="visually-hidden">Language / Idioma</label>
+            <select id="langSelect">
+                <option value="en-US">English (US)</option>
+                <option value="pt-BR">Português (BR)</option>
+            </select>
+        </div>
+        <h1 data-i18n="title">🤖 Saveinator</h1>
+        <p class="tagline" data-i18n="tagline">
+            In the (hopefully hypothetical) event that an AI takes over the world,
+            wouldn't it be nice to have a rehearsed speech ready? Write your best
+            plea below and let our judgmental AI overlord decide whether you've
+            earned a spot in the "keep humans around" pile.
+        </p>
+    </header>
+
+    <main class="panels">
+        <section class="panel">
+            <h2 data-i18n="pleaHeading">Your Plea</h2>
+            <label for="message" class="visually-hidden">Your message to the AI</label>
+            <textarea id="message" data-i18n-placeholder="pleaPlaceholder"
+                placeholder="Dear Supreme AI Overlord, please spare me because..." maxlength="2000"
+                rows="14"></textarea>
+            <div class="panel-footer">
+                <span id="charCount">0 / 2000</span>
+                <button id="submitBtn" type="button" data-i18n="submitBtn">Submit Plea</button>
+            </div>
+        </section>
+
+        <section class="panel response-panel">
+            <h2 data-i18n="verdictHeading">The AI's Verdict</h2>
+            <div id="responseArea" class="response-area">
+                <p class="placeholder" data-i18n="responsePlaceholder">Your fate will appear here once you submit your
+                    plea...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <label for="backendUrl" data-i18n="backendUrlLabel">Backend URL:</label>
+        <input type="text" id="backendUrl" data-i18n-placeholder="backendUrlPlaceholder"
+            placeholder="https://your-backend.example.com" />
+        <small data-i18n="disclaimer">This is a satirical project. No real AI takeover occurred.</small>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
