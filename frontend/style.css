@@ -180,6 +180,22 @@ footer small {
     margin-top: 0.5rem;
 }
 
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.social-links a {
+    color: var(--muted);
+    display: inline-flex;
+}
+
+.social-links a:hover {
+    color: var(--accent);
+}
+
 .visually-hidden {
     position: absolute;
     width: 1px;
