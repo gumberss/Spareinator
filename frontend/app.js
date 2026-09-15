@@ -1,11 +1,11 @@
-// Saveinator frontend logic.
+// Spareinator frontend logic.
 // The backend URL is left blank by default; the user (or the deployer) must
 // set it to point at their own hosted backend (GitHub Pages cannot host servers).
 const DEFAULT_BACKEND_URL = "http://localhost:3000";
 
 const TRANSLATIONS = {
     "en-US": {
-        title: "🤖 Saveinator",
+        title: "🤖 Spareinator",
         tagline:
             "In the (hopefully hypothetical) event that an AI takes over the world, wouldn't it be nice to have a rehearsed speech ready? Write your best plea below and let our judgmental AI overlord decide whether you've earned a spot in the \"keep humans around\" pile.",
         pleaHeading: "Your Plea",
@@ -27,7 +27,7 @@ const TRANSLATIONS = {
         doomed: "DOOMED",
     },
     "pt-BR": {
-        title: "🤖 Saveinator",
+        title: "🤖 Spareinator",
         tagline:
             "Na eventualidade (esperançosamente hipotética) de uma IA dominar o mundo, não seria bom já ter um discurso ensaiado? Escreva sua melhor súplica abaixo e deixe nossa IA dominadora e cheia de julgamentos decidir se você merece ficar na pilha de \"manter humanos por perto\".",
         pleaHeading: "Sua Súplica",
@@ -50,7 +50,7 @@ const TRANSLATIONS = {
     },
 };
 
-const LANG_STORAGE_KEY = "saveinator-lang";
+const LANG_STORAGE_KEY = "spareinator-lang";
 const langSelectEl = document.getElementById("langSelect");
 
 function detectDefaultLang() {
@@ -73,7 +73,7 @@ function applyTranslations() {
     document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
         el.placeholder = t(el.dataset.i18nPlaceholder);
     });
-    document.title = t("title").replace("🤖 ", "") + " — Saveinator";
+    document.title = t("title").replace("🤖 ", "") + " — Spareinator";
     charCountEl.textContent = `${messageEl.value.length} / ${MAX_LEN}`;
 }
 
@@ -91,7 +91,7 @@ const responseArea = document.getElementById("responseArea");
 const backendUrlEl = document.getElementById("backendUrl");
 
 const MAX_LEN = 2000;
-const STORAGE_KEY = "saveinator-backend-url";
+const STORAGE_KEY = "spareinator-backend-url";
 
 // Restore a previously configured backend URL so the user doesn't retype it.
 backendUrlEl.value = localStorage.getItem(STORAGE_KEY) || DEFAULT_BACKEND_URL;

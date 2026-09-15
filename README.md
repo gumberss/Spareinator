@@ -1,4 +1,4 @@
-# 🤖 Saveinator
+# 🤖 Spareinator
 
 A tongue-in-cheek project where you write a plea to a fictional world-dominating AI,
 and a backend LLM judges your plea — in character, and funny — deciding whether

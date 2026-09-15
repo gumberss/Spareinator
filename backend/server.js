@@ -114,5 +114,5 @@ app.post("/api/plea", pleaLimiter, async (req, res) => {
 app.get("/healthz", (_req, res) => res.json({ status: "ok" }));
 
 app.listen(PORT, () => {
-    console.log(`Saveinator backend listening on port ${PORT}`);
+    console.log(`Spareinator backend listening on port ${PORT}`);
 });

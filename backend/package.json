@@ -1,7 +1,7 @@
 {
-    "name": "saveinator-backend",
+    "name": "spareinator-backend",
     "version": "1.0.0",
-    "description": "Backend for Saveinator: judges human pleas to a fictional world-dominating AI using an LLM.",
+    "description": "Backend for Spareinator: judges human pleas to a fictional world-dominating AI using an LLM.",
     "main": "server.js",
     "type": "commonjs",
     "scripts": {
